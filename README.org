@@ -1,0 +1,6 @@
+* Calendar Desktop
+  This is a simple program that prints out the calendar days into the output. It can currently only format the output for the conky desktop output system.
+  I'll later add other options like the terminal ANSII colors and no color system.
+
+  I'll also later add the feature of saving your schedules in a file so that the calendar can show it. I'd like for it to be synced to the google calendar or sth, but I'm not sure I can handle that so it'll have to be manual and minimalistic for now.
+  

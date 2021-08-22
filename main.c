@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include "aesthetics.h"
 
+#define DISPLAY_PREVIOUS_WEEKS 1
+#define DISPLAY_TOTAL_WEEKS 4
+
 struct date {
   int year;
   int month;
@@ -13,46 +16,74 @@ struct date {
 
 int main(int argc, char *argv[])
 {
-  int active = 1;
+  int active = 1, weekend = 0;
   time_t now, start;
   struct tm *timeinfo, date_today;
   time(&now);
-  now -= 19 *24 * 60 * 60;
   date_today = *localtime(&now);
 
-  start = now - (date_today.tm_wday + 7) * 24 * 60 * 60;
+  start = now - (date_today.tm_wday + 1 + 7 * DISPLAY_PREVIOUS_WEEKS
+		 ) * 24 * 60 * 60;
 
   int i,j;
   printf("%3s ", COLOR_NORMAL_INACTIVE DAY_IND_SUN COLOR_RESET);
-  printf("%3s ", DAY_IND_MON);
-  printf("%3s ", DAY_IND_TUE);
-  printf("%3s ", DAY_IND_WED);
-  printf("%3s ", DAY_IND_THU);
-  printf("%3s ", DAY_IND_FRI);
+  printf("%3s ", COLOR_WEEKLY_EVENT_INACTIVE DAY_IND_MON COLOR_RESET);
+  printf("%3s ", COLOR_WEEKLY_EVENT_INACTIVE DAY_IND_TUE COLOR_RESET);
+  printf("%3s ", COLOR_WEEKLY_EVENT_INACTIVE DAY_IND_WED COLOR_RESET);
+  printf("%3s ", COLOR_WEEKLY_EVENT_INACTIVE DAY_IND_THU COLOR_RESET);
+  printf("%3s ", COLOR_WEEKLY_EVENT_INACTIVE DAY_IND_FRI COLOR_RESET);
   printf("%3s \n", COLOR_NORMAL_INACTIVE DAY_IND_SAT COLOR_RESET);
-  for (i = 0; i<3; ++i) {
+  for (i = 0; i<DISPLAY_TOTAL_WEEKS; ++i) {
     for (j=0; j<7; ++j) {
       start += 24 * 60 * 60;
       timeinfo = localtime(&start);
-      if (timeinfo->tm_mon != date_today.tm_mon || timeinfo->tm_wday<2){
+      if (timeinfo->tm_mon != date_today.tm_mon){
 	active = 0;
       }else{
 	active = 1;
       }
-      if (active){
-	if (timeinfo->tm_mday == date_today.tm_mday){
-	  printf("%s", COLOR_TODAY);
-	}else{
-	  printf("%s", COLOR_NORMAL_ACTIVE);
-	}
+      if (timeinfo->tm_wday == 0 || timeinfo->tm_wday == 6){
+	weekend = 1;
       }else{
-	printf("%s", COLOR_NORMAL_INACTIVE);
+	weekend = 0;
       }
-
+      if (timeinfo->tm_mday == date_today.tm_mday){
+	printf("%s", COLOR_TODAY);
+      }
+      else if (weekend){
+	/* will add more options here later */
+	printf("%s", active ? COLOR_NORMAL_ACTIVE : COLOR_NORMAL_INACTIVE);
+      }else{
+	printf("%s", active ? COLOR_WEEKLY_EVENT_ACTIVE : COLOR_WEEKLY_EVENT_INACTIVE);
+      }
       printf("%3d ", timeinfo->tm_mday);
       printf("%s", COLOR_RESET);
     }
     printf("\n");
   }
+  /* I'm too lazy so I'll hardcode this part for now. */
+  printf(COLOR_SPECIAL_EVENT_ACTIVE);
+  switch (date_today.tm_wday) {    
+  case 0:
+    printf("%28s", "Weekend");
+    break;
+  case 1:
+  case 3:
+    printf("%28s", "10:00-11:00 >Lab Meeting\n");
+    printf("%28s", "18:00-19:20 >Hydr sys anlys");
+    break;
+  case 2:
+  case 4:
+    printf("%28s", "12:30-13:50 >Groundwater\n");
+    printf("%28s", "14:30-16:50 >GIS");
+    break;
+  case 5:
+    printf("%28s", "12:20-13:15 >Seminar");
+    break;
+  case 6:
+    printf("%28s", "Weekend");
+    break;
+  }
+  printf(COLOR_RESET "\n");
   return 0;
 }
