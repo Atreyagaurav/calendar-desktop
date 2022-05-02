@@ -65,24 +65,11 @@ int main(int argc, char *argv[])
   printf(COLOR_SPECIAL_EVENT_ACTIVE);
   switch (date_today.tm_wday) {    
   case 0:
-    printf("%28s", "Weekend");
-    break;
-  case 1:
-  case 3:
-    printf("%28s", "10:00-11:00 >Lab Meeting\n");
-    printf("%28s", "18:00-19:20 >Hydr sys anlys");
-    break;
-  case 2:
-  case 4:
-    printf("%28s", "12:30-13:50 >Groundwater\n");
-    printf("%28s", "14:30-16:50 >GIS");
-    break;
-  case 5:
-    printf("%28s", "12:20-13:15 >Seminar");
-    break;
   case 6:
     printf("%28s", "Weekend");
     break;
+  default:
+    printf("%28s", "");
   }
   printf(COLOR_RESET "\n");
   return 0;
