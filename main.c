@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 #define DISPLAY_PREVIOUS_WEEKS 1
 #define DISPLAY_TOTAL_WEEKS 4
@@ -35,16 +36,9 @@ int main(int argc, char *argv[]) {
     for (j = 0; j < 7; ++j) {
       start += 24 * 60 * 60;
       timeinfo = localtime(&start);
-      if (timeinfo->tm_mon != date_today.tm_mon) {
-        active = 0;
-      } else {
-        active = 1;
-      }
-      if (timeinfo->tm_wday == 0 || timeinfo->tm_wday == 6) {
-        weekend = 1;
-      } else {
-        weekend = 0;
-      }
+      active = (timeinfo->tm_mon != date_today.tm_mon) ? 0 : 1;
+      weekend = (timeinfo->tm_wday == 0 || timeinfo->tm_wday == 6) ? 1 : 0;
+
       if (timeinfo->tm_mday == date_today.tm_mday) {
         printf("%s", COLOR_TODAY);
       } else if (weekend) {
@@ -59,16 +53,23 @@ int main(int argc, char *argv[]) {
     }
     printf("\n");
   }
-  /* I'm too lazy so I'll hardcode this part for now. */
-  printf(COLOR_SPECIAL_EVENT_ACTIVE);
-  switch (date_today.tm_wday) {
-  case 0:
-  case 6:
-    printf("%28s", "Weekend");
-    break;
-  default:
-    printf("%28s", "");
+
+  /* piped contents will be shown here. */
+  /* I use remind to pipe some contents, for example following command
+     will make nice [tag] Event from remind for today.
+
+   * remind -s ~/.reminder/ |
+   * grep `date +"%Y/%m/%d"` |
+   * awk '{x=$3;$1=$2=$3=$4=$5="";$0=$0;$1=$1; print "["x"] "$0}'
+   
+  */
+  if (!isatty(fileno(stdin))) {
+    printf(COLOR_SPECIAL_EVENT_ACTIVE);
+    char ch;
+    while ((ch = getc(stdin)) != EOF) {
+      putc(ch, stdout);
+    }
+    printf(COLOR_RESET "\n");
   }
-  printf(COLOR_RESET "\n");
   return 0;
 }
