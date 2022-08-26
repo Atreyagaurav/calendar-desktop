@@ -6,6 +6,7 @@
 
 #define DISPLAY_PREVIOUS_WEEKS 1
 #define DISPLAY_TOTAL_WEEKS 4
+#define DISPLAY_MAX_WIDTH 7*4-1
 
 struct date {
   int year;
@@ -66,8 +67,15 @@ int main(int argc, char *argv[]) {
   if (!isatty(fileno(stdin))) {
     printf(COLOR_SPECIAL_EVENT_ACTIVE);
     char ch;
+    int col=0;
     while ((ch = getc(stdin)) != EOF) {
       putc(ch, stdout);
+      if (ch == '\n'){
+	col = 0;
+      } else if (++col>DISPLAY_MAX_WIDTH){
+	printf("\n  ");
+	col = 2;
+      }
     }
     printf(COLOR_RESET "\n");
   }
